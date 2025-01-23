@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Media Downloader Pro</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --neon-blue: #00f3ff;
+      --neon-pink: #ff00ff;
+      --neon-purple: #bc13fe;
+      --neon-green: #0fff50;
+      --dark-bg: #1a1a1a;
+      --darker-bg: #141414;
+    }
+
+    body {
+      width: 450px;
+      padding: 0;
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--dark-bg);
+      color: white;
+    }
+
+    .header {
+      background: linear-gradient(45deg, var(--neon-purple), var(--neon-blue));
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(188, 19, 254, 0.3);
+    }
+
+    .header::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1));
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+
+    .content {
+      padding: 20px;
+      background: var(--darker-bg);
+    }
+
+    .media-section {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(5px);
+    }
+
+    .section-title {
+      color: var(--neon-blue);
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 15px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-shadow: 0 0 5px rgba(0, 243, 255, 0.5);
+    }
+
+    .media-item {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 10px;
+      padding: 15px;
+      margin-bottom: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.3s ease;
+    }
+
+    .media-item:hover {
+      background: rgba(255, 255, 255, 0.07);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 243, 255, 0.1);
+    }
+
+    .media-name {
+      color: white;
+      font-size: 14px;
+    }
+
+    .media-size {
+      color: rgba(255, 255, 255, 0.6);
+      font-size: 12px;
+    }
+
+    .download-btn {
+      background: linear-gradient(45deg, var(--neon-blue), var(--neon-purple));
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+      box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+    }
+
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+    }
+
+    .download-btn:disabled {
+      background: #333;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .header-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 15px;
+      background: var(--darker-bg);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .action-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 10px;
+      cursor: pointer;
+      color: var(--neon-blue);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      width: 40px;
+      height: 40px;
+    }
+
+    .action-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 0 15px rgba(0, 243, 255, 0.3);
+    }
+
+    .progress-bar {
+      height: 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+      width: 0;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+    }
+
+    .status-badge {
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-left: 10px;
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+    }
+
+    .status-badge.pending {
+      background: rgba(255, 165, 0, 0.2);
+      color: var(--neon-green);
+    }
+
+    .status-badge.downloading {
+      background: rgba(0, 243, 255, 0.2);
+      color: var(--neon-blue);
+    }
+
+    .status-badge.complete {
+      background: rgba(15, 255, 80, 0.2);
+      color: var(--neon-green);
+    }
+
+    .footer {
+      padding: 15px;
+      text-align: center;
+      background: var(--darker-bg);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .developer-link {
+      color: var(--neon-purple);
+      text-decoration: none;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 25px;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .developer-link:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(188, 19, 254, 0.3);
+    }
+
+    .no-items {
+      color: rgba(255, 255, 255, 0.5);
+      font-style: italic;
+      text-align: center;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    @keyframes glow {
+      0% { box-shadow: 0 0 5px rgba(0, 243, 255, 0.3); }
+      50% { box-shadow: 0 0 20px rgba(0, 243, 255, 0.5); }
+      100% { box-shadow: 0 0 5px rgba(0, 243, 255, 0.3); }
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    .loading {
+      animation: spin 1s linear infinite;
+    }
+
+    /* Settings Panel Styles */
+    .settings-panel {
+      background: var(--darker-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+    }
+
+    .location-item {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .location-item.active {
+      background: rgba(0, 243, 255, 0.1);
+      border-color: var(--neon-blue);
+    }
+
+    .add-location-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--neon-blue);
+      color: var(--neon-blue);
+      text-shadow: 0 0 5px rgba(0, 243, 255, 0.5);
+    }
+
+    .server-status {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 12px;
+    }
+
+    .server-status.online {
+      background: #4CAF50;
+      color: white;
+    }
+
+    .server-status.offline {
+      background: #f44336;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>
+      <i class="fas fa-download"></i>
+      Media Downloader Pro
+    </h1>
+  </div>
+
+  <div class="header-actions">
+    <button id="clearBtn" class="action-btn">
+      <i class="fas fa-trash"></i> Clear All
+    </button>
+    <button id="settingsBtn" class="action-btn">
+      <i class="fas fa-cog"></i>
+    </button>
+  </div>
+
+  <div class="settings">
+    <div class="settings-panel" id="settingsPanel">
+      <h3><i class="fas fa-folder"></i> Download Location</h3>
+      <div class="location-list" id="locationList">
+        <!-- Locations will be added here -->
+      </div>
+      <button class="add-location-btn" id="addLocationBtn">
+        <i class="fas fa-plus"></i> Add Location
+      </button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="media-section">
+      <h2 class="section-title">
+        <i class="fas fa-video"></i>
+        Videos
+      </h2>
+      <div id="videoList"></div>
+    </div>
+
+    <div class="media-section">
+      <h2 class="section-title">
+        <i class="fas fa-image"></i>
+        Images
+      </h2>
+      <div id="imageList"></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <a href="https://itzmechami.wuaze.com/" target="_blank" class="developer-link">
+      <i class="fas fa-code"></i> Developer Website
+    </a>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html> 
