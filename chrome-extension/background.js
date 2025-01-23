@@ -16,7 +16,7 @@ const FETCH_TIMEOUT = 30000; // 30 seconds
 let isServerOnline = false;
 
 // Change this line at the top of the file
-const SERVER_URL = 'your-railway-url'; // Get this from Railway dashboard
+const SERVER_URL = 'https://video-downloader-api.onrender.com'; // Replace with your actual Render URL
 
 // Initialize download queue processor
 function processDownloadQueue() {
