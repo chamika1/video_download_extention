@@ -1,33 +1,32 @@
 {
   "manifest_version": 3,
-  "name": "Web Media Downloader",
-  "version": "1.0",
-  "description": "Download videos and images from websites",
+  "name": "Video Download Extension",
+  "version": "1.0.0",
+  "description": "Download videos from YouTube and other websites easily",
   "permissions": [
-    "webRequest",
-    "tabs",
-    "activeTab",
-    "storage",
     "downloads",
-    "downloads.shelf",
-    "notifications"
+    "tabs",
+    "webRequest",
+    "notifications",
+    "storage"
   ],
   "host_permissions": [
-    "<all_urls>",
-    "http://localhost:5000/*"
+    "https://video-downloader-api.onrender.com/*",
+    "*://*.youtube.com/*",
+    "<all_urls>"
   ],
-  "background": {
-    "service_worker": "background.js"
-  },
   "action": {
     "default_popup": "popup.html",
     "default_icon": "icon.png"
   },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content.js"],
-      "run_at": "document_idle"
-    }
-  ]
+  "icons": {
+    "128": "icon.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "js": ["content.js"]
+  }]
 } 
