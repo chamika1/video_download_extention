@@ -346,21 +346,34 @@ async function getFileSize(url, isYouTube) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ url, isYouTube })
+            body: JSON.stringify({ 
+                url, 
+                isYouTube 
+            })
         });
         
+        if (!response.ok) {
+            throw new Error(`Server responded with ${response.status}`);
+        }
+
         const data = await response.json();
+        
         if (data.error) {
-            throw new Error(data.error);
+            console.error('Size fetch error:', data.error);
+            return null;
         }
         
         if (data.size) {
-            fileSizeCache.set(cacheKey, {
-                size: data.size,
-                timestamp: Date.now()
-            });
-            return data.size;
+            const size = parseInt(data.size);
+            if (!isNaN(size)) {
+                fileSizeCache.set(cacheKey, {
+                    size: size,
+                    timestamp: Date.now()
+                });
+                return size;
+            }
         }
+        return null;
     } catch (error) {
         console.error('Error fetching file size:', error);
         return null;

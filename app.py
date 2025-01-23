@@ -77,20 +77,44 @@ def get_file_size():
             return jsonify({'error': 'URL is required'}), 400
 
         if is_youtube:
-            ydl_opts = {
-                'format': 'best',
-                'quiet': True
-            }
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(url, download=False)
-                return jsonify({
-                    'size': info.get('filesize') or info.get('filesize_approx', 0),
-                    'title': info.get('title', '')
-                })
+            try:
+                ydl_opts = {
+                    'format': 'best',
+                    'quiet': True,
+                    'no_warnings': True,
+                    'youtube_include_dash_manifest': False
+                }
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(url, download=False)
+                    formats = info.get('formats', [])
+                    # Get the best format
+                    best_format = next((f for f in formats if f.get('format_id') == info.get('format_id')), None)
+                    
+                    return jsonify({
+                        'size': best_format.get('filesize') if best_format else info.get('filesize', 0),
+                        'title': info.get('title', ''),
+                        'duration': info.get('duration', 0)
+                    })
+            except Exception as e:
+                logger.error(f"YouTube size extraction error: {str(e)}")
+                return jsonify({'error': str(e)}), 500
         else:
-            response = requests.head(url, allow_redirects=True)
-            size = response.headers.get('content-length', 0)
-            return jsonify({'size': size})
+            try:
+                headers = {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                }
+                response = requests.head(url, headers=headers, allow_redirects=True, timeout=10)
+                size = response.headers.get('content-length')
+                if size:
+                    return jsonify({'size': int(size)})
+                else:
+                    # Try GET request if HEAD doesn't provide size
+                    response = requests.get(url, headers=headers, stream=True, timeout=10)
+                    size = response.headers.get('content-length', 0)
+                    return jsonify({'size': int(size) if size else 0})
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Direct size fetch error: {str(e)}")
+                return jsonify({'error': str(e)}), 500
             
     except Exception as e:
         logger.error(f"Error processing request: {str(e)}")

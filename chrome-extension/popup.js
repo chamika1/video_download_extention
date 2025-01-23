@@ -154,17 +154,10 @@ function updateLocationsList() {
 }
 
 function formatFileSize(bytes) {
-    if (!bytes) return 'Unknown size';
-    const units = ['B', 'KB', 'MB', 'GB'];
-    let size = bytes;
-    let unitIndex = 0;
-    
-    while (size >= 1024 && unitIndex < units.length - 1) {
-        size /= 1024;
-        unitIndex++;
-    }
-    
-    return `${size.toFixed(1)} ${units[unitIndex]}`;
+    if (bytes === 0 || bytes === null) return 'Unknown size';
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${sizes[i]}`;
 }
 
 function createMediaItem(mediaInfo, type) {
@@ -352,4 +345,16 @@ function updateServerStatus(isOnline) {
     statusIndicator.className = `server-status ${isOnline ? 'online' : 'offline'}`;
     statusIndicator.textContent = isOnline ? 'Server Online' : 'Server Offline';
     document.querySelector('.header').appendChild(statusIndicator);
+}
+
+// Update the size display function
+function updateFileSize(mediaItem, size) {
+    const sizeDisplay = mediaItem.querySelector('.file-size');
+    if (size === null || size === 0) {
+        sizeDisplay.textContent = 'Size unavailable';
+        sizeDisplay.classList.add('size-error');
+    } else {
+        sizeDisplay.textContent = formatFileSize(size);
+        sizeDisplay.classList.remove('size-error');
+    }
 } 
