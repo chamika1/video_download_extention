@@ -15,6 +15,9 @@ const FETCH_TIMEOUT = 30000; // 30 seconds
 // Add server status tracking
 let isServerOnline = false;
 
+// Change this line at the top of the file
+const SERVER_URL = 'your-railway-url'; // Get this from Railway dashboard
+
 // Initialize download queue processor
 function processDownloadQueue() {
     if (downloadQueue.size === 0) return;
@@ -75,7 +78,7 @@ async function checkServerStatus() {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
         
-        const response = await fetch('http://localhost:5000/status', {
+        const response = await fetch(`${SERVER_URL}/status`, {
             signal: controller.signal
         });
         
@@ -161,7 +164,7 @@ function handleYouTubeDownload(downloadId, downloadItem) {
         return;
     }
 
-    fetchWithRetry('http://localhost:5000/download', {
+    fetchWithRetry(`${SERVER_URL}/download`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -338,7 +341,7 @@ async function getFileSize(url, isYouTube) {
     }
 
     try {
-        const response = await fetchWithRetry('http://localhost:5000/get-file-size', {
+        const response = await fetchWithRetry(`${SERVER_URL}/get-file-size`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

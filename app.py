@@ -4,18 +4,26 @@ import yt_dlp
 import requests
 import os
 import logging
+import sys
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    stream=sys.stdout
+)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
-CORS(app, resources={
-    r"/*": {
-        "origins": "*",
-        "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type"]
-    }
-})
+CORS(app)
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+# Ensure download directory exists
+if not os.path.exists('downloaded_videos'):
+    os.makedirs('downloaded_videos')
+
+@app.route('/')
+def home():
+    return jsonify({'status': 'ok', 'message': 'Server is running'})
 
 @app.route('/status')
 def status():
@@ -89,4 +97,5 @@ def get_file_size():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000) 
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port) 
